@@ -15,8 +15,15 @@
                     <h1>Project: {{ $project->title }}</h1>
                      <div>{{ $project->description }}</div>                
                      @forelse ($project->tasks as $task)
-                        <div>
-                            {{ $task->body }}
+                        <div class="flex mb-2">
+                            <form method="POST" action="{{ $project->path() }}/tasks/{{ $task->id }}">
+                                @csrf
+                                @METHOD('PATCH')
+                                <input name="body" value="{{ $task->body }}" class="{{ $task->completed ? 'text-gray-500' : '' }}">
+                                <input type="checkbox" name="completed" onchange="this.form.submit()"
+                                    {{ $task->completed ? 'checked' : ''}}
+                                    >
+                            </form>
                         </div>
                     @empty
                         <div>

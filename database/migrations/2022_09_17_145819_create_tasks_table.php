@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->text('body');
             $table->foreignId('project_id')->constrained('projects', 'id');
+            $table->boolean('completed')->default(false);
             $table->timestamps();
         });
     }
