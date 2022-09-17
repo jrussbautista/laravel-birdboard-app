@@ -11,8 +11,7 @@ class ProjectsTest extends TestCase
 {   
     use WithFaker, RefreshDatabase;
 
-    /** @test */
-    public function a_user_can_create_a_project()
+    public function test_user_can_create_a_project()
     {
 
         $this->withoutExceptionHandling();
@@ -29,20 +28,27 @@ class ProjectsTest extends TestCase
         $this->get('/projects')->assertSee($attributes['title']);
     }
 
-    /** @test */
-    public function a_project_requires_a_title() {
+    public function test_user_can_view_a_project() {
+
+        $this->withoutExceptionHandling();
+
+        $project = Project::factory()->create();
+        
+        $this->get($project->path())->assertSee($project->title)
+        ->assertSee($project->description);
+
+    }
+
+
+    public function test_project_requires_a_title() {
         $attributes = Project::factory()->raw(['title' => '']);
         $this->post('/projects', $attributes)->assertSessionHasErrors('title');
     }
 
-    /** @test */
-    public function a_project_requires_a_description() {
+
+    public function test_project_requires_a_description() {
         $attributes = Project::factory()->raw(['description' => '']);
         $this->post('/projects', $attributes)->assertSessionHasErrors('description');
     }
-
-
-    
-
 
 }
