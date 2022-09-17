@@ -12,6 +12,25 @@ class ProjectsTest extends TestCase
 {   
     use WithFaker, RefreshDatabase;
 
+
+    public function test_authenticated_user_can_create_projects() {
+
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $attributes = [
+            'title' => $this->faker->sentence,
+            'description' => $this->faker->paragraph
+        ];
+
+        $this->post('/projects', $attributes)->assertRedirect('/projects');
+
+        $this->assertDatabaseHas('projects', $attributes);
+
+        $this->get('/projects')->assertSee($attributes['title']);
+        
+    }
+
     public function test_user_can_view_a_project() {
 
         $this->withoutExceptionHandling();
@@ -22,7 +41,6 @@ class ProjectsTest extends TestCase
         ->assertSee($project->description);
 
     }
-
 
     public function test_project_requires_a_title() {
 
@@ -42,16 +60,6 @@ class ProjectsTest extends TestCase
         $attributes = Project::factory()->raw(['description' => '']);
 
         $this->post('/projects', $attributes)->assertSessionHasErrors('description');
-    }
-
-    public function test_authenticated_user_can_create_projects() {
-
-        $user = User::factory()->create();
-        $this->actingAs($user);
-        
-        $attributes = Project::factory()->raw();
-
-        $this->post('/projects', $attributes)->assertRedirect('projects');
     }
 
 }
