@@ -16,7 +16,7 @@
                      <div>{{ $project->description }}</div>                
                      @forelse ($project->tasks as $task)
                         <div class="flex mb-2">
-                            <form method="POST" action="{{ $project->path() }}/tasks/{{ $task->id }}">
+                            <form method="POST" action="{{ $task->path() }}">
                                 @csrf
                                 @METHOD('PATCH')
                                 <input name="body" value="{{ $task->body }}" class="{{ $task->completed ? 'text-gray-500' : '' }}">
