@@ -38,7 +38,11 @@ class ProjectsTest extends TestCase
 
         $attributes = Project::factory(['owner_id' => $user->id])->raw();
 
-        $this->post('/projects', $attributes)->assertRedirect('/projects/1');
+        $response = $this->post('/projects', $attributes);
+
+        $project = Project::where($attributes)->first();
+        
+        $response->assertRedirect($project->path());
 
         $this->assertDatabaseHas('projects', $attributes);
 
