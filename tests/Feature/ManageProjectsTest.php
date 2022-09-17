@@ -32,16 +32,13 @@ class ProjectsTest extends TestCase
 
 
     public function test_authenticated_user_can_create_projects() {
-        $this->signIn();
+        $user = $this->signIn();
 
         $this->get('/projects/create')->assertStatus(200);
 
-        $attributes = [
-            'title' => $this->faker->sentence,
-            'description' => $this->faker->paragraph
-        ];
+        $attributes = Project::factory(['owner_id' => $user->id])->raw();
 
-        $this->post('/projects', $attributes)->assertRedirect('/projects');
+        $this->post('/projects', $attributes)->assertRedirect('/projects/1');
 
         $this->assertDatabaseHas('projects', $attributes);
 

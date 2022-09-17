@@ -13,7 +13,26 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
                     <h1>Project: {{ $project->title }}</h1>
-                     <div>{{ $project->description }}</div>
+                     <div>{{ $project->description }}</div>                
+                     @forelse ($project->tasks as $task)
+                        <div>
+                            {{ $task->body }}
+                        </div>
+                    @empty
+                        <div>
+                            <p>Add new task</p>
+                        </div>
+                     @endforelse
+
+                     <form action="{{ $project->path() }}/tasks" method="POST">
+                        @csrf
+                        <div>
+                            <textarea name="body" placeholder="Add task..."></textarea>
+                        </div>
+                        <div>
+                            <button type="submit">Add</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
