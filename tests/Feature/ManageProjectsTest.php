@@ -5,15 +5,14 @@ namespace Tests\Feature;
 use App\Models\Project;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Facades\Tests\Setup\ProjectFactory;
 use Tests\TestCase;
 
 class ProjectsTest extends TestCase
 {   
     use WithFaker, RefreshDatabase;
 
-    public function test_authenticated_user_can_create_projects() {
-        $this->withExceptionHandling();
-        
+    public function test_authenticated_user_can_create_projects() {        
         $user = $this->signIn();
 
         $this->get('/projects/create')->assertStatus(200);
@@ -37,7 +36,7 @@ class ProjectsTest extends TestCase
     public function test_authenticated_user_can_view_their_project() {
         $user = $this->signIn();
 
-        $project = Project::factory(['owner_id' => $user->id])->create();
+        $project = ProjectFactory::ownedBy($user)->create();
         
         $this->get($project->path())
             ->assertSee($project->title)
@@ -47,7 +46,7 @@ class ProjectsTest extends TestCase
     public function test_authenticated_user_cannot_view_the_project_of_others() {
         $this->signIn();
 
-        $project = Project::factory()->create();
+        $project = ProjectFactory::create();
         
         $this->get($project->path())
             ->assertStatus(403);
@@ -56,7 +55,7 @@ class ProjectsTest extends TestCase
     public function test_authenticated_user_cannot_update_the_project_of_others() {
         $this->signIn();
 
-        $project = Project::factory()->create();
+        $project = ProjectFactory::create();
 
         $attributes = ['notes' => 'Changed notes.'];
 
@@ -77,13 +76,13 @@ class ProjectsTest extends TestCase
     }
 
     public function test_guest_cannot_view_single_project() {
-        $project = Project::factory()->create(); 
+        $project = ProjectFactory::create();
 
         $this->get($project->path())->assertRedirect('login');
     }
 
     public function test_guest_cannot_update_project() {
-        $project = Project::factory()->create();
+        $project = ProjectFactory::create();
 
         $attributes = Project::factory()->raw(); 
 
