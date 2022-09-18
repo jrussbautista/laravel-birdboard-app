@@ -43,6 +43,19 @@ class ProjectsTest extends TestCase
             ->assertSee($project->description);
     }
 
+    public function test_authenticated_user_can_update_their_project() {
+        $user = $this->signIn();
+
+        $project = ProjectFactory::ownedBy($user)->create();
+
+        $attributes = ['title' => 'Changed title', 'description' => 'Changed desc', 'notes' => 'Changed notes.'];
+
+        $this->patch($project->path(), $attributes);
+
+        $this->assertDatabaseHas('projects', $attributes);
+
+    }
+
     public function test_authenticated_user_cannot_view_the_project_of_others() {
         $this->signIn();
 
