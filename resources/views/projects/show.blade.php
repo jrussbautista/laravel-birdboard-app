@@ -40,6 +40,11 @@
                             <button type="submit">Add</button>
                         </div>
                     </form>
+
+                    <div>
+                        <p>Notes:</p>
+                        <textarea>{{ $project->notes }}</textarea>
+                    </div>
                 </div>
             </div>
         </div>

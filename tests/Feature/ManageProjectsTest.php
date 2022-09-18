@@ -11,32 +11,14 @@ class ProjectsTest extends TestCase
 {   
     use WithFaker, RefreshDatabase;
 
-
-    public function test_guest_cannot_create_projects() {
-        $attributes = Project::factory()->raw();
-
-        $this->get('/projects/create', $attributes)->assertRedirect('login');
-        $this->post('/projects', $attributes)->assertRedirect('login');
-    }
-
-    public function test_guest_cannot_view_projects() {
-        $this->get('/projects')->assertRedirect('login');
-    }
-
-    
-    public function test_guest_cannot_view_single_project() {
-        $project = Project::factory()->create(); 
-
-        $this->get($project->path())->assertRedirect('login');
-    }
-
-
     public function test_authenticated_user_can_create_projects() {
+        $this->withExceptionHandling();
+        
         $user = $this->signIn();
 
         $this->get('/projects/create')->assertStatus(200);
 
-        $attributes = Project::factory(['owner_id' => $user->id])->raw();
+        $attributes = Project::factory(['owner_id' => $user->id, 'notes' => 'General notes'])->raw();
 
         $response = $this->post('/projects', $attributes);
 
@@ -46,8 +28,10 @@ class ProjectsTest extends TestCase
 
         $this->assertDatabaseHas('projects', $attributes);
 
-        $this->get('/projects')->assertSee($attributes['title']);
-        
+        $this->get($project->path())
+            ->assertSee($attributes['title'])
+            ->assertSee($attributes['description'])
+            ->assertSee($attributes['notes']);
     }
 
     public function test_authenticated_user_can_view_their_project() {
@@ -60,13 +44,53 @@ class ProjectsTest extends TestCase
             ->assertSee($project->description);
     }
 
-    public function test_unauthenticated_user_cannot_view_the_project_of_others() {
+    public function test_authenticated_user_cannot_view_the_project_of_others() {
         $this->signIn();
 
         $project = Project::factory()->create();
         
-        $this->get($project->path())->assertStatus(403);
+        $this->get($project->path())
+            ->assertStatus(403);
     }
+
+    public function test_authenticated_user_cannot_update_the_project_of_others() {
+        $this->signIn();
+
+        $project = Project::factory()->create();
+
+        $attributes = ['notes' => 'Changed notes.'];
+
+        $this->patch($project->path(), $attributes)
+            ->assertStatus(403);
+
+    }
+
+    public function test_guest_cannot_create_projects() {
+        $attributes = Project::factory()->raw();
+
+        $this->get('/projects/create', $attributes)->assertRedirect('login');
+        $this->post('/projects', $attributes)->assertRedirect('login');
+    }
+
+    public function test_guest_cannot_view_projects() {
+        $this->get('/projects')->assertRedirect('login');
+    }
+
+    public function test_guest_cannot_view_single_project() {
+        $project = Project::factory()->create(); 
+
+        $this->get($project->path())->assertRedirect('login');
+    }
+
+    public function test_guest_cannot_update_project() {
+        $project = Project::factory()->create();
+
+        $attributes = Project::factory()->raw(); 
+
+        $this->patch($project->path(), $attributes)
+            ->assertRedirect('login');
+    }
+
 
     public function test_project_requires_a_title() {
         $this->signIn();
