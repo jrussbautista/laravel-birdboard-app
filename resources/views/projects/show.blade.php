@@ -43,7 +43,12 @@
 
                     <div>
                         <p>Notes:</p>
-                        <textarea>{{ $project->notes }}</textarea>
+                        <form action="{{ $project->path() }}" method="POST">
+                            @csrf
+                            @method('PATCH')
+                            <textarea name="notes">{{ $project->notes }}</textarea>
+                            <button type="submit">Save</button>
+                        </form>
                     </div>
                 </div>
             </div>
