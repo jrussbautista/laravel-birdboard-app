@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Facades\Tests\Setup\ProjectFactory;
 use Tests\TestCase;
 
-class ProjectsTest extends TestCase
+class ManageProjectsTest extends TestCase
 {   
     use WithFaker, RefreshDatabase;
 
@@ -43,12 +43,25 @@ class ProjectsTest extends TestCase
             ->assertSee($project->description);
     }
 
-    public function test_authenticated_user_can_update_their_project() {
+    public function test_authenticated_user_can_update_a_project() {
         $user = $this->signIn();
 
         $project = ProjectFactory::ownedBy($user)->create();
 
         $attributes = ['title' => 'Changed title', 'description' => 'Changed desc', 'notes' => 'Changed notes.'];
+
+        $this->patch($project->path(), $attributes);
+
+        $this->assertDatabaseHas('projects', $attributes);
+
+    }
+
+    public function test_authenticated_user_can_update_a_project_notes() {
+        $user = $this->signIn();
+
+        $project = ProjectFactory::ownedBy($user)->create();
+
+        $attributes = ['notes' => 'Changed notes.'];
 
         $this->patch($project->path(), $attributes);
 
